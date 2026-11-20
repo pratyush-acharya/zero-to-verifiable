@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "z2v"
+version = "0.1.0"
+description = "Helper package for the Zero to Verifiable workshop: SFT, then GRPO against a checker, on Countdown puzzles"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+# The versions the workshop was validated with. torch is deliberately absent: Colab's own CUDA build must stay.
+dependencies = [
+    "transformers==5.22.1",
+    "trl==1.18.1",
+    "peft==0.21.3",
+    "datasets",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "tensorboard",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["z2v"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]
