@@ -26,7 +26,7 @@ Students type along in Colab. They type only what is being taught: the checker, 
 | 3 · Text to tokens: the mask | **`encode(p)`** with the `-100` label mask, `show_mask()` | 6 |
 | 4 · The model and LoRA | **`LoraConfig(...)`**, `load_model(...)` | 7 |
 | 5 · Before training | `evaluate(..., adapter=False)`, `explain_sft()` | 2 |
-| 6 · SFT ⏱ | **`TrainingArguments(...)`**, `train_sft(..., minutes=4)`, `explain_sft()` | 8 |
+| 6 · SFT ⏱ | **`TrainingArguments(...)`**, `train_sft(..., minutes=4)`, `explain_sft()` | 9 |
 | 7 · Room for RL | `evaluate()`, `room_for_rl()` | 2 |
 | 8 · The reward | **`reward(completions, nums, target, **kw)`**, `reward_ladder()` | 10 |
 | 9 · GRPO ⏱ | **`GRPOConfig(...)`**, `explain_grpo()`, `train_grpo(..., minutes=12)` | 11 |
@@ -38,7 +38,7 @@ Line counts leave out blank lines and comments. `results()` ends with one line o
 
 - **A function you typed doesn't work:** run `from z2v.reference import check, encode, reward` and carry on. Those are the reference versions, and they replace yours from that cell on. `evaluate()` refuses a `check` that disagrees with the rules, and `reward_ladder()` flags a reward that differs from the reference.
 - **You fell behind:** open the complete notebook (`notebooks/workshop.ipynb`) and run it from the top.
-- **Out of memory in GRPO:** set `per_device_train_batch_size=16, gradient_accumulation_steps=4` in the `GRPOConfig` (still 8 puzzles × 8 answers per update).
+- **Out of memory:** a T4 has about 15 GB, so the configs already split each update into smaller passes (SFT 16 × 2, GRPO 16 × 4). If it still runs out, halve `per_device_train_batch_size` again and double `gradient_accumulation_steps`: each update stays the same size.
 
 ## What's inside `z2v`
 

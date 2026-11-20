@@ -32,26 +32,29 @@ def same(a, b):
 
 
 def test_sft_config_equals_the_validated_one(bf16):
-    typed = TrainingArguments(learning_rate=2e-4, per_device_train_batch_size=32, lr_scheduler_type="linear", warmup_steps=20)
+    # The validated L4 run used 32 x 1; the notebook uses 16 x 2 (same 32 per update, half the memory, fits a T4).
+    typed = TrainingArguments(learning_rate=2e-4, per_device_train_batch_size=16, gradient_accumulation_steps=2,
+                              lr_scheduler_type="linear", warmup_steps=20)
     validated = TrainingArguments(
-        output_dir=f"{RUNS}/sft", per_device_train_batch_size=32, max_steps=378,
+        output_dir=f"{RUNS}/sft", per_device_train_batch_size=16, gradient_accumulation_steps=2, max_steps=378,
         learning_rate=2e-4, lr_scheduler_type="linear", warmup_steps=20, logging_steps=5,
         report_to=["tensorboard"], bf16=bf16, fp16=not bf16, save_strategy="no", remove_unused_columns=False, seed=SEED)
     assert same(zt.sft_args(typed, max_steps=378), validated) == set()
 
 
 def test_grpo_config_equals_the_validated_one(bf16):
+    # The validated L4 run used 32 x 2; the notebook uses 16 x 4 (same 64 answers = 8 puzzles x 8 per update).
     typed = GRPOConfig(num_generations=8, temperature=1.0, learning_rate=2e-5, beta=0.0,
-                       max_completion_length=64, per_device_train_batch_size=32, gradient_accumulation_steps=2)
+                       max_completion_length=64, per_device_train_batch_size=16, gradient_accumulation_steps=4)
     validated = GRPOConfig(
-        output_dir=f"{RUNS}/grpo", per_device_train_batch_size=32, gradient_accumulation_steps=2,
+        output_dir=f"{RUNS}/grpo", per_device_train_batch_size=16, gradient_accumulation_steps=4,
         num_generations=8, max_completion_length=64, temperature=1.0, beta=0.0, scale_rewards="group",
         learning_rate=2e-5, lr_scheduler_type="constant_with_warmup", warmup_steps=10, max_grad_norm=0.1,
         max_steps=1000, logging_steps=1, report_to=["tensorboard"], bf16=bf16, fp16=not bf16,
         gradient_checkpointing=False, save_strategy="no", seed=SEED)
     merged = zt.grpo_args(typed)
     assert same(merged, validated) == set()
-    assert (merged.generation_batch_size, merged.steps_per_generation) == (64, 2)
+    assert (merged.generation_batch_size, merged.steps_per_generation) == (64, 4)
 
 
 def test_knobs_you_set_win_over_the_validated_defaults(bf16):

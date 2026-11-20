@@ -103,11 +103,12 @@ def calls(name):
 
 def test_configs_have_the_validated_knobs():
     assert calls("LoraConfig") == [({"r": 16, "lora_alpha": 16, "target_modules": "all-linear", "lora_dropout": 0.0}, [])]
-    assert calls("TrainingArguments") == [({"learning_rate": 2e-4, "per_device_train_batch_size": 32,
+    assert calls("TrainingArguments") == [({"learning_rate": 2e-4, "per_device_train_batch_size": 16,
+                                            "gradient_accumulation_steps": 2,
                                             "lr_scheduler_type": "linear", "warmup_steps": 20}, [])]
     assert calls("GRPOConfig") == [({"num_generations": 8, "temperature": 1.0, "learning_rate": 2e-5, "beta": 0.0,
-                                     "max_completion_length": 64, "per_device_train_batch_size": 32,
-                                     "gradient_accumulation_steps": 2}, [])]
+                                     "max_completion_length": 64, "per_device_train_batch_size": 16,
+                                     "gradient_accumulation_steps": 4}, [])]
     assert calls("load_model") == [({}, ["'Qwen/Qwen2.5-0.5B-Instruct'", "lora"])]
     assert calls("train_sft") == [({"minutes": 4}, ["model", "puzzles.train", "encode", "sft_cfg"])]
     assert calls("train_grpo") == [({"minutes": 12}, ["model", "puzzles.rl", "reward", "grpo_cfg"])]
